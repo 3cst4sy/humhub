@@ -26,3 +26,4 @@ nbproject
 
 themes/*
 !themes/HumHub
+/shell/
