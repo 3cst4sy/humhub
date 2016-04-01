@@ -16,31 +16,11 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
 <html>
 <head>
   <title></title>
-  <meta http-equiv="Content-Script-Type" content="text/javascript">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <meta name="generator" content="phpshell">
-  <link rel="shortcut icon" type="image/x-icon" href="phpshell.ico">
-  <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body>
   <h1>Fatal Error!</h1>
   <p><b>' . $errstr . '</b></p>
   <p>in <b>' . $errfile . '</b>, line <b>' . $errline . '</b>.</p>
-
-  <hr>
-
-  <p>Please consult the <a href="README">README</a>, <a
-  href="INSTALL">INSTALL</a>, and <a href="SECURITY">SECURITY</a> files for
-  instruction on how to use PHP Shell.</p>
-
-  <hr>
-
-  <address>
-  Copyright &copy; 2000&ndash;2012, the Phpshell-team. Get the latest
-  version at <a
-  href="http://phpshell.sourceforge.net/">http://phpshell.sourceforge.net/</a>.
-  </address>
-
 </body>
 </html>');
     }
@@ -50,23 +30,25 @@ function error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
  * This is what we want in a security critical application like this. */
 set_error_handler('error_handler');
 
-// Funktion zum analysieren der HTTP-Auth-Header
-function http_digest_parse($txt) {
-    // gegen fehlende Daten schützen
-    $noetige_teile = array('nonce' => 1, 'nc' => 1, 'cnonce' => 1, 'qop' => 1,
+/*
+ *  check HTTP-Auth-Header
+ */
+function http_digest_parse($input) {
+    //all required data
+    $requirements = array('nonce' => 1, 'nc' => 1, 'cnonce' => 1, 'qop' => 1,
         'username' => 1, 'uri' => 1, 'response' => 1);
-    $daten = array();
-    $schluessel = implode('|', array_keys($noetige_teile));
+    $data = array();
+    $key = implode('|', array_keys($requirements));
 
-    $treffer = array();
-    preg_match_all('@(' . $schluessel . ')=(?:([\'"])([^\2]+?)\2|([^\s,]+))@', $txt, $treffer, PREG_SET_ORDER);
+    $matches = array();
+    preg_match_all('@(' . $key . ')=(?:([\'"])([^\2]+?)\2|([^\s,]+))@', $input, $matches, PREG_SET_ORDER);
 
-    foreach ($treffer as $t) {
-        $daten[$t[1]] = $t[3] ? $t[3] : $t[4];
-        unset($noetige_teile[$t[1]]);
+    foreach ($matches as $match) {
+        $data[$match[1]] = $match[3] ? $match[3] : $match[4];
+        unset($requirements[$match[1]]);
     }
 
-    return $noetige_teile ? false : $daten;
+    return $requirements ? false : $data;
 }
 
 /* Initialize some variables we need again and again. */
@@ -80,8 +62,8 @@ session_start();
 
 $realm = 'Humhub Cronjob';
 
-// Benutzer => Passwort
-$benutzer = array('username' => 'password');
+// User => Password
+$user = array('user' => 'password');
 
 //$authdigest = filter_input(INPUT_SERVER, 'PHP_AUTH_DIGEST');
 if (empty($_SERVER['PHP_AUTH_DIGEST'])) {
@@ -90,17 +72,16 @@ if (empty($_SERVER['PHP_AUTH_DIGEST'])) {
             '",qop="auth",nonce="' . uniqid() . '",opaque="' . md5($realm) .
             '"');
     $_SESSION['authenticated'] = false;
-} else if (!($daten = http_digest_parse($_SERVER['PHP_AUTH_DIGEST'])) || !isset($benutzer[$daten['username']])) {
+} else if (!($data = http_digest_parse($_SERVER['PHP_AUTH_DIGEST'])) || !isset($user[$data['username']])) {
     $_SESSION['authenticated'] = false;
 } else {
-// Erzeugen einer gültigen Antwort
-    $A1 = md5($daten['username'] . ':' . $realm . ':' . $benutzer[$daten['username']]);
-    $A2 = md5((string) filter_input(INPUT_SERVER, 'REQUEST_METHOD') . ':' . $daten['uri']);
-    $gueltige_antwort = md5($A1 . ':' . $daten['nonce'] . ':' . $daten['nc'] .
-            ':' . $daten['cnonce'] . ':' . $daten['qop'] . ':' .
+    $A1 = md5($data['username'] . ':' . $realm . ':' . $user[$data['username']]);
+    $A2 = md5((string) filter_input(INPUT_SERVER, 'REQUEST_METHOD') . ':' . $data['uri']);
+    $check_answer = md5($A1 . ':' . $data['nonce'] . ':' . $data['nc'] .
+            ':' . $data['cnonce'] . ':' . $data['qop'] . ':' .
             $A2);
 
-    if ($daten['response'] != $gueltige_antwort) {
+    if ($data['response'] != $check_answer) {
         $_SESSION['authenticated'] = false;
     } else {
         $_SESSION['authenticated'] = true;
