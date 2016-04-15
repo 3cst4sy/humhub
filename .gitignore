@@ -26,4 +26,5 @@ nbproject
 
 themes/*
 !themes/HumHub
-/shell/
+
+favicon.ico
