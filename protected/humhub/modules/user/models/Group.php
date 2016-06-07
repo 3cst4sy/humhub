@@ -310,7 +310,7 @@ class Group extends \yii\db\ActiveRecord
             ]);
             $mail->setFrom([Yii::$app->settings->get('mailer.systemEmailAddress') => Yii::$app->settings->get('mailer.systemEmailName')]);
             $mail->setTo($manager->email);
-            $mail->setSubject(Yii::t('UserModule.models_User', "New user needs approval"));
+            $mail->setSubject(Yii::t('UserModule.models_User', 'New user needs approval'));
             $mail->send();
         }
         return true;

@@ -32,13 +32,13 @@ class GroupManagerMenu extends \humhub\widgets\BaseMenu
             'isActive' => (Yii::$app->controller->module && Yii::$app->controller->module->id == 'admin' && Yii::$app->controller->id == 'group' && Yii::$app->controller->action->id == 'edit'),
         ));
         $this->addItem(array(
-            'label' => Yii::t('AdminModule.views_groups_index', "Permissions"),
+            'label' => Yii::t('AdminModule.views_groups_index', 'Permissions'),
             'url' => Url::toRoute(['/admin/group/manage-permissions', 'id' => $groupId]),
             'sortOrder' => 200,
             'isActive' => (Yii::$app->controller->module && Yii::$app->controller->module->id == 'admin' && Yii::$app->controller->id == 'group' && Yii::$app->controller->action->id == 'manage-permissions'),
         ));
         $this->addItem(array(
-            'label' => Yii::t('AdminModule.views_groups_index', "Members"),
+            'label' => Yii::t('AdminModule.views_groups_index', 'Members'),
             'url' => Url::toRoute(['/admin/group/manage-group-users', 'id' => $groupId]),
             'sortOrder' => 200,
             'isActive' => (Yii::$app->controller->module && Yii::$app->controller->module->id == 'admin' && Yii::$app->controller->id == 'group' && Yii::$app->controller->action->id == 'manage-group-users'),
