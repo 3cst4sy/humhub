@@ -9,4 +9,5 @@ return array (
   'This overview contains a list of each registered user with actions to view, edit and delete users.' => '',
   'Users' => 'Benutzer',
   'never' => 'Nie',
+  'Send invite' => 'Neuen Benutzer per Mail einladen',
 );
