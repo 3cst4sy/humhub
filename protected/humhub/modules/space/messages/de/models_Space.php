@@ -15,4 +15,5 @@ return array (
   'Visibility' => 'Sichtbarkeit',
   'You cannot create private visible spaces!' => 'Du kannst keine privaten Spaces erstellen!',
   'You cannot create public visible spaces!' => 'Du kannst keine öffentlichen Spaces erstellen!',
+  'Default Content Visibility' => 'Standard Sichtbarkeit von Inhalten',
 );
