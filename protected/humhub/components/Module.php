@@ -11,6 +11,7 @@ namespace humhub\components;
 use Yii;
 use humhub\models\ModuleEnabled;
 use yii\base\Exception;
+use yii\helpers\Json;
 
 /**
  * Base Class for Modules / Extensions
@@ -21,15 +22,13 @@ class Module extends \yii\base\Module
 {
 
     /**
-     * @var Array the loaded module.json info file
+     * @var array the loaded module.json info file
      */
     private $_moduleInfo = null;
 
     /**
-     * The path for module resources (images, javascripts)
+     * @var string The path for module resources (images, javascripts)
      * Also module related assets like README.md and module_image.png should be placed here.
-     *
-     * @var type
      */
     public $resourcesPath = 'assets';
 
@@ -59,7 +58,7 @@ class Module extends \yii\base\Module
         if ($info['name']) {
             return $info['name'];
         }
-        return $this->getId();
+        return $this->id;
     }
 
     /**
@@ -115,26 +114,41 @@ class Module extends \yii\base\Module
      * Returns the url of an asset file and publishes all module assets if
      * the file is not published yet.
      * 
-     * @param type $relativePath relative file path e.g. /module_image.jpg
-     * @return type
+     * @param string $relativePath relative file path e.g. /module_image.jpg
+     * @return string
      */
     public function getPublishedUrl($relativePath)
     {
-        $path = $this->getAssetPath().$relativePath;
+        $path = $this->getAssetPath();
 
-        $publishedPath = Yii::$app->assetManager->getPublishedPath($path);
-    
-        if($publishedPath === false || !is_file($publishedPath)) {
+        // If the file has not been published yet we publish the module assets
+        if(!$this->isPublished($relativePath)) {
             $this->publishAssets();
         }
         
-        return Yii::$app->assetManager->getPublishedUrl($path);
+        // If its still not published the file does not exist
+        if($this->isPublished($relativePath)) {
+            return Yii::$app->assetManager->getPublishedUrl($path).$relativePath;
+        }
     }
+    
+    /**
+     * Checks if a specific asset file has already been published
+     * @param string $relativePath
+     * @return string
+     */
+    private function isPublished($relativePath)
+    {
+        $path = $this->getAssetPath();
+        $publishedPath = Yii::$app->assetManager->getPublishedPath($path);
+        return $publishedPath !== false && is_file($publishedPath.$relativePath);
+    }
+
 
     /**
      * Get Assets Url
      *
-     * @return String Image Url
+     * @return string Image Url
      */
     public function getAssetsUrl()
     {
@@ -145,7 +159,7 @@ class Module extends \yii\base\Module
     
     /**
      * Publishes the basePath/resourcesPath (assets) module directory if existing.
-     * @return type
+     * @return array
      */
     public function publishAssets()
     {
@@ -156,7 +170,7 @@ class Module extends \yii\base\Module
     
     /**
      * Determines whether or not this module has an asset directory. 
-     * @return type
+     * @return boolean
      */
     private function hasAssets()
     {
@@ -256,10 +270,10 @@ class Module extends \yii\base\Module
     }
 
     /**
-     * Reads module.json which contains basic module informations and
+     * Reads module.json which contains basic module information and
      * returns it as array
      *
-     * @return Array module.json content
+     * @return array module.json content
      */
     protected function getModuleInfo()
     {
@@ -268,7 +282,7 @@ class Module extends \yii\base\Module
         }
 
         $moduleJson = file_get_contents($this->getBasePath() . DIRECTORY_SEPARATOR . 'module.json');
-        return \yii\helpers\Json::decode($moduleJson);
+        return Json::decode($moduleJson);
     }
 
     /**

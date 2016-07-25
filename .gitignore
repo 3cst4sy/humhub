@@ -28,5 +28,6 @@ themes/*
 !themes/HumHub
 
 favicon.ico
-
-/shell/
+/.settings
+/.buildpath
+/.project
