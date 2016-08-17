@@ -1,0 +1,3 @@
+[PHP]
+extension=/usr/local/php-550/lib/php/extensions/no-debug-non-zts-20121212/intl.so
+

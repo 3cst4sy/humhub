@@ -31,3 +31,5 @@ favicon.ico
 /.settings
 /.buildpath
 /.project
+
+/shell/
