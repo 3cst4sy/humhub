@@ -110,7 +110,7 @@ if (!$_SESSION['authenticated']) {
         return;
     }
 
-    $command = './yii cron/' . $arg;
+    $command = 'php yii cron/' . $arg;
 
     $io = array();
     $p = proc_open(
